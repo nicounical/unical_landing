@@ -1,6 +1,6 @@
 # Unical Graphic — Landing experience
 
-Landing de **Unical Graphic** (unical.es) con **5 variantes funcionales de cada sección** (A–E), la nueva sección **Unical in Motion** y un **comparador** para combinarlas y elegir la versión definitiva.
+Landing de **Unical Graphic** (unical.es) con **7 variantes funcionales de cada sección** (A–G), cada una basada en un componente real de 21st.dev,, la nueva sección **Unical in Motion** y un **comparador** para combinarlas y elegir la versión definitiva.
 
 - Contenido y estructura: `webunical/Final/Landing-Home/unical-home-FINAL_v29.html` (fuente de verdad), volcados en `src/content/site.ts`.
 - Stack: el mismo del repo original `unicales` (Vite 5 + React 18 + TypeScript), más GSAP + ScrollTrigger y Lenis. Las tipografías (Poppins e Inter) se sirven desde el propio sitio.
@@ -20,8 +20,8 @@ npm run preview      # sirve el build local
 
 Barra inferior: «Variantes» abre el panel completo.
 - **A | B | C | D | E** por sección: cambia la implementación completa sin recargar.
-- Atajo: teclas **1–5** cambian la sección que estás viendo.
-- **Ver las 5**: muestra las cinco variantes de una sección una debajo de otra (`?gallery=hero`).
+- Atajo: teclas **1–7** cambian la sección que estás viendo.
+- **Ver las 7**: muestra las siete variantes de una sección una debajo de otra (`?gallery=hero`).
 - **Escritorio / Tablet / Móvil / Los tres**: vista en marcos de 1440, 820 y 390 px.
 - La selección se guarda en el navegador y en la URL (`?hero=B&services=D…`). **Copiar enlace** sirve para compartirla.
 - **Restaurar inicial** vuelve a la combinación de `final-selection.ts`.

@@ -1,0 +1,9 @@
+/* Sobre fondos oscuros o de color, el favicon real va sobre una pastilla blanca para que se lea sin alterarlo. */
+.cl-chip .cm__i { background: #fff; padding: 2px; }
+/* Marca que puede partir línea (rejillas estrechas en móvil). */
+.cl-wrap .cm { white-space: normal; text-align: center; justify-content: center; }
+/* Contorno en marcas tipográficas grandes (variante editorial). */
+.cl-hollow { color: transparent; -webkit-text-stroke: 1.2px var(--cl-stroke, #16161F); }
+/* Favicon en gris hasta que se señala la celda (variante minimal). */
+.cl-mono .cm__i { filter: grayscale(1); opacity: .65; transition: filter .5s, opacity .5s; }
+.cl-mono .cl-cell:hover .cm__i { filter: none; opacity: 1; }

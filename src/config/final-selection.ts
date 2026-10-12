@@ -5,18 +5,18 @@ import type { Letter, SectionKey } from "./sections";
  * En producción (sin selector) se renderiza exactamente esta combinación.
  * Para cambiarla: elige en el comparador, pulsa «Copiar configuración» y pega aquí el resultado.
  *
- * Propuesta inicial de dirección creativa: máximo impacto con UNA sola sección fijada con pin (el reel),
- * siguiendo la regla de ui-ux-pro-max de no fijar más de 1–2 secciones por página.
+ * Propuesta inicial: solo dos escenas fijadas con scroll (portada y reel), siguiendo la regla de
+ * ui-ux-pro-max de no fijar más de 1–2 secciones por página; el resto alterna claro/oscuro.
  */
 export const FINAL_SELECTION: Record<SectionKey, Letter> = {
   hero: "A",
-  services: "A",
+  services: "C",
   reel: "A",
-  projects: "A",
-  process: "A",
+  projects: "E",
+  process: "D",
   numbers: "A",
-  sectors: "A",
-  why: "A",
-  clients: "A",
+  sectors: "E",
+  why: "D",
+  clients: "F",
   contact: "A",
 };

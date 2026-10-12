@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { contact, cta } from "@/content/site";
 
 /**
@@ -19,7 +19,8 @@ export const FIELDS: { name: FieldName; label: string; type: string; required?: 
 ];
 
 export function Field({ f, className = "" }: { f: (typeof FIELDS)[number]; className?: string }) {
-  const id = `cf-${f.name}`;
+  const uid = useId();
+  const id = `cf-${f.name}-${uid.replace(/:/g, "")}`;
   return (
     <label className={`cf-field ${f.full ? "is-full" : ""} ${className}`} htmlFor={id}>
       <span className="cf-label">{f.label}</span>
