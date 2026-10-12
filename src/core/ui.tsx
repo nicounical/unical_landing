@@ -2,7 +2,7 @@ import {
   forwardRef, useEffect, useImperativeHandle, useRef, useState,
   type AnchorHTMLAttributes, type CSSProperties, type ReactNode,
 } from "react";
-import { fullMotion, finePointer, isMobile } from "./env";
+import { fullMotion, finePointer } from "./env";
 import { media, type Video } from "@/content/site";
 
 /* ---------- Logo (siempre la imagen real) ---------- */
@@ -79,7 +79,7 @@ export const SmartVideo = forwardRef<SmartVideoHandle, SmartVideoProps>(function
     if (isStatic) return;
     const el = ref.current;
     if (!el) return;
-    const chosen = video.mobile && isMobile() ? video.mobile : video.src;
+    const chosen = video.mobile && window.innerWidth * (window.devicePixelRatio || 1) <= 1100 ? video.mobile : video.src;
     if (eager) setSrc(chosen);
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -109,7 +109,7 @@ export const SmartVideo = forwardRef<SmartVideoHandle, SmartVideoProps>(function
   useEffect(() => {
     const el = ref.current;
     if (!el || isStatic) return;
-    if (autoPlay && !src && visible.current) setSrc(video.mobile && isMobile() ? video.mobile : video.src);
+    if (autoPlay && !src && visible.current) setSrc(video.mobile && window.innerWidth * (window.devicePixelRatio || 1) <= 1100 ? video.mobile : video.src);
     if (!src) return;
     if (autoPlay) el.play().catch(() => {});
     else el.pause();
