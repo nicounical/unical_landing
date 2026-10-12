@@ -34,7 +34,7 @@ function writeUrl(sel: Selection) {
   const p = new URLSearchParams(window.location.search);
   SECTIONS.forEach((s) => { if (sel[s.key] !== FINAL_SELECTION[s.key]) p.set(s.key, sel[s.key]); else p.delete(s.key); });
   const q = p.toString();
-  window.history.replaceState(null, "", `${window.location.pathname}${q ? `?${q}` : ""}${window.location.hash}`);
+  try { window.history.replaceState(null, "", `${window.location.pathname}${q ? `?${q}` : ""}${window.location.hash}`); } catch { /* entorno sin history (p. ej. visor embebido) */ }
 }
 
 /** Selección activa. En producción siempre es FINAL_SELECTION. En preview: URL > almacenamiento local > FINAL_SELECTION. */

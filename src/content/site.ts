@@ -4,12 +4,14 @@
  * Las imágenes y vídeos son trabajos reales de Unical (carpeta webunical, repo unicales y unical-pro-max).
  */
 
-const IMG = "/media/img";
-const VID = "/media/video";
+/** Prefijo de rutas: "/" en producción, "./" en el build de revisión. */
+const BASE = import.meta.env.BASE_URL;
+const IMG = `${BASE}media/img`;
+const VID = `${BASE}media/video`;
 
 export const media = {
-  logoLight: "/media/brand/logo-unical-blanco.svg", // letras blancas + trazo azul (fondos oscuros)
-  logoDark: "/media/brand/logo-unical.png", // carbón (fondos claros)
+  logoLight: `${BASE}media/brand/logo-unical-blanco.svg`, // letras blancas + trazo azul (fondos oscuros)
+  logoDark: `${BASE}media/brand/logo-unical.png`, // carbón (fondos claros)
 };
 
 export type Video = { src: string; mobile?: string; poster: string; label: string; audio: boolean };
@@ -213,7 +215,7 @@ export const why = {
   ],
 };
 
-const LOGO = "/media/logos";
+const LOGO = `${BASE}media/logos`;
 export const clients = {
   eyebrow: "Clientes",
   title: "Clientes que confían en nosotros.",

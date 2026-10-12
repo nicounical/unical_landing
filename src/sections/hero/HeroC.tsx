@@ -102,7 +102,7 @@ export default function HeroC() {
           })}
         </svg>
         <div className="hC__photo" aria-hidden="true">
-          <img src="/media/img/hubs/eventos/stand-feria.webp" alt="" loading="lazy" decoding="async" />
+          <img src={`${import.meta.env.BASE_URL}media/img/hubs/eventos/stand-feria.webp`} alt="" loading="lazy" decoding="async" />
         </div>
       </div>
 

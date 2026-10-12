@@ -20,11 +20,11 @@ const BADGES = [
 ];
 const SHOTS = [
   { kind: "video" as const, video: videos.heroPanther, label: "Car wrapping · Lexus Black Panther" },
-  { kind: "img" as const, src: "/media/img/hubs/eventos/tunel-vodafone.webp", label: "Eventos · Túnel Vodafone" },
+  { kind: "img" as const, src: `${import.meta.env.BASE_URL}media/img/hubs/eventos/tunel-vodafone.webp`, label: "Eventos · Túnel Vodafone" },
   { kind: "video" as const, video: videos.cirsa, label: "Backdrop retroiluminado · Cirsa" },
-  { kind: "img" as const, src: "/media/img/landing/eversense.webp", label: "Stands · Eversense" },
-  { kind: "img" as const, src: "/media/img/proyectos/five-guys.webp", label: "Corpóreos iluminados · Five Guys" },
-  { kind: "img" as const, src: "/media/img/landing/tibau-camion-taller.webp", label: "Rotulación de flotas · Tibau Team" },
+  { kind: "img" as const, src: `${import.meta.env.BASE_URL}media/img/landing/eversense.webp`, label: "Stands · Eversense" },
+  { kind: "img" as const, src: `${import.meta.env.BASE_URL}media/img/proyectos/five-guys.webp`, label: "Corpóreos iluminados · Five Guys" },
+  { kind: "img" as const, src: `${import.meta.env.BASE_URL}media/img/landing/tibau-camion-taller.webp`, label: "Rotulación de flotas · Tibau Team" },
 ];
 const DURATION = 5200;
 
