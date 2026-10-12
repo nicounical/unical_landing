@@ -48,7 +48,7 @@ export default function HeroA() {
       .from(q(".hA__meta > *"), { y: 24, autoAlpha: 0, duration: 1, stagger: 0.08 }, 0.9);
     // Dolly-in + salida al hacer scroll
     gsap.timeline({ scrollTrigger: { trigger: root, start: "top top", end: "bottom top", scrub: true } })
-      .to(q(".hA__stage"), { scale: 1.18, ease: "none" }, 0)
+      .to(q(".hA__stage"), { scale: 1.08, ease: "none" }, 0)
       .to(q(".hA__content"), { yPercent: -18, autoAlpha: 0, ease: "none" }, 0)
       .to(q(".hA__bar--t"), { yPercent: 60, ease: "none" }, 0)
       .to(q(".hA__bar--b"), { yPercent: -60, ease: "none" }, 0);
