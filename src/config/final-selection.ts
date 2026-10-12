@@ -10,13 +10,13 @@ import type { Letter, SectionKey } from "./sections";
  */
 export const FINAL_SELECTION: Record<SectionKey, Letter> = {
   hero: "A",
-  services: "C",
+  services: "A",
   reel: "A",
   projects: "A",
-  process: "B",
-  numbers: "E",
-  sectors: "C",
+  process: "A",
+  numbers: "A",
+  sectors: "A",
   why: "A",
-  clients: "E",
-  contact: "C",
+  clients: "A",
+  contact: "A",
 };

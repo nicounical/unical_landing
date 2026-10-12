@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useLayoutEffect, useState } from "react";
-import { SECTIONS, LETTERS, type SectionDef, type Letter } from "@/config/sections";
+import { SECTIONS, LETTERS, variantOf, type SectionDef, type Letter } from "@/config/sections";
 import { Header, Footer, WhatsAppFloat } from "@/core/Chrome";
 import { initSmoothScroll, refreshScroll } from "@/core/scroll";
 import { PREVIEW } from "@/core/env";
@@ -18,14 +18,15 @@ function Mounted({ onMount }: { onMount: () => void }) {
 }
 
 function SectionSlot({ def, letter, labelled = false }: { def: SectionDef; letter: Letter; labelled?: boolean }) {
-  const V = def.variants[letter];
+  const V = variantOf(def, letter);
+  const shown = def.variants[letter] ? letter : V.letter;
   return (
-    <section id={labelled ? `${def.id}-${letter}` : def.id} className="sec" data-sec={def.key} data-variant={letter} aria-label={def.label}>
+    <section id={labelled ? `${def.id}-${letter}` : def.id} className="sec" data-sec={def.key} data-variant={shown} aria-label={def.label}>
       {labelled && (
-        <div className="pv-label"><b>{def.label} · {letter}</b> {V.name} <i>{V.direction}</i></div>
+        <div className="pv-label"><b>{def.label} · {shown}</b> {V.name} <i>{V.direction}{V.source ? ` · 21st.dev «${V.source.name}»` : ""}</i></div>
       )}
       <Suspense fallback={<div className="sec__loading" style={{ minHeight: "100vh", background: "var(--u-navy)" }} />}>
-        <V.Component key={letter} />
+        <V.Component key={shown} />
         <Mounted onMount={refreshScroll} />
       </Suspense>
     </section>
@@ -50,7 +51,7 @@ export default function App() {
       <Header />
       <main id="main">
         {gallerySection
-          ? LETTERS.map((l) => <SectionSlot key={l} def={gallerySection} letter={l} labelled />)
+          ? LETTERS.filter((l) => gallerySection.variants[l]).map((l) => <SectionSlot key={l} def={gallerySection} letter={l} labelled />)
           : SECTIONS.map((def) => <SectionSlot key={def.key} def={def} letter={sel[def.key]} />)}
       </main>
       <Footer />

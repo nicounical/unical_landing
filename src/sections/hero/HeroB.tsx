@@ -1,100 +1,114 @@
-import { gallery } from "@/content/site";
-import { useGsap } from "@/core/useGsap";
-import { gsap, ScrollTrigger } from "@/core/scroll";
-import { HeroCopy, HeroEyebrow, HeroTitle } from "./shared";
-import "./hero.css";
-
 /**
- * B — IMMERSIVE 3D · «Órbita de proyectos».
- * Adaptación del componente 21st.dev «Cinematic Orbit Hero» (daiwiikharihar, id 32357):
- * los trabajos salen de una pila y se abren en una órbita elíptica con escala por profundidad
- * y parallax de cursor. Portado de motion/react a GSAP para no añadir dependencias.
+ * HERO B · Immersive 3D — basado en 21st.dev «Spatial Depth Hero» (id 30683).
+ * Una pila de trabajos reales estalla en el espacio 3D con el scroll; la cámara se inclina con el cursor.
+ * Adaptación: fotos reales de Unical, H1 + CTAs en el centro, tamaños de tarjeta para móvil, fallback estático.
  */
-const IMGS = [gallery[0], gallery[3], gallery[1], gallery[7], gallery[4], gallery[16], gallery[2], gallery[9]];
-const N = IMGS.length;
-const CARDS = IMGS.map((src, i) => ({
-  src,
-  a: (i * Math.PI * 2) / N,
-  stack: { x: (i - N / 2) * 1.4, y: 24 + (i - N / 2) * 0.9, r: (i - N / 2) * 3 },
-}));
-const orbitPos = (a: number, mobile: boolean) => {
-  const rx = mobile ? 36 : 42, ry = mobile ? 24 : 18;
-  const depth = Math.sin(a - Math.PI / 2);
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useMotionValueEvent, type MotionValue } from "motion/react";
+import { finePointer } from "@/core/env";
+import { HeroCopy, HeroEyebrow, H1_LABEL, HERO_IMAGES, useFull } from "./shared";
+
+const COORDS = [
+  { x: -28, y: -18, z: 250 }, { x: 30, y: -22, z: 150 }, { x: -32, y: 20, z: 80 }, { x: 28, y: 18, z: -50 },
+  { x: -16, y: 28, z: -150 }, { x: 18, y: -32, z: -250 }, { x: -12, y: -30, z: -350 }, { x: 12, y: 32, z: -450 },
+];
+const PICK = [0, 1, 2, 8, 10, 12, 14, 9].map((k) => HERO_IMAGES[k % HERO_IMAGES.length]);
+const CARDS = PICK.map((item, i) => {
+  const c = COORDS[i];
   return {
-    x: Math.cos(a - Math.PI / 2) * rx,
-    y: depth * ry + (mobile ? 6 : 10),
-    s: 0.8 + depth * 0.25,
-    r: Math.cos(a - Math.PI / 2) * 15,
-    z: Math.round((depth + 1) * 100),
-    depth,
+    item,
+    stacked: { x: 0, y: 0, z: i * 2, rz: (i - 3.5) * 4, ry: 0, rx: 0 },
+    spatial: { x: c.x, y: c.y, z: c.z, rz: (i - 3.5) * 1.5, ry: c.x * -0.5, rx: c.y * 0.5 },
   };
-};
-const ease = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+});
+
+function Card({ card, index, progress, active, hovered, setHovered }: {
+  card: (typeof CARDS)[number]; index: number; progress: MotionValue<number>; active: boolean; hovered: number | null; setHovered: (n: number | null) => void;
+}) {
+  const { stacked: s, spatial: e, item } = card;
+  const x = useTransform(progress, [0, 1], [s.x, e.x]);
+  const y = useTransform(progress, [0, 1], [s.y, e.y]);
+  const z = useTransform(progress, [0, 1], [s.z, e.z]);
+  const rz = useTransform(progress, [0, 1], [s.rz, e.rz]);
+  const ry = useTransform(progress, [0, 1], [s.ry, e.ry]);
+  const rx = useTransform(progress, [0, 1], [s.rx, e.rx]);
+  const scale = useTransform(progress, [0, 0.1, 1], [0, 0.65, 0.8]);
+  const opacity = useTransform(progress, [0, 0.1, 1], [0, 1, 1]);
+  const transform = useTransform([x, y, z, rx, ry, rz, scale] as MotionValue<number>[], ([tx, ty, tz, a, b, c, k]) =>
+    `translate3d(calc(-50% + ${tx}vw), calc(-50% + ${ty}vh), ${tz}px) rotateX(${a}deg) rotateY(${b}deg) rotateZ(${c}deg) scale(${k})`);
+  const dim = hovered !== null && hovered !== index;
+  return (
+    <motion.div className="pointer-events-none absolute left-1/2 top-1/2 h-[24vh] w-[30vw] md:h-[22vh] md:w-[15vw]" style={{ zIndex: s.z, opacity, transform }}>
+      <motion.div
+        className="pointer-events-auto h-full w-full cursor-pointer overflow-hidden rounded-[18px] shadow-2xl shadow-black/50 ring-1 ring-white/20"
+        onMouseEnter={() => active && setHovered(index)} onMouseLeave={() => active && setHovered(null)}
+        animate={{ opacity: dim ? 0.3 : 1, filter: dim ? "blur(6px) brightness(0.5)" : "blur(0px) brightness(1)" }}
+        transition={{ duration: 0.3 }}
+        whileHover={active ? { scale: 1.1, rotateX: 0, rotateY: 0, transition: { type: "spring", stiffness: 400, damping: 25 } } : undefined}
+      >
+        <img src={item.src} alt={item.title} loading={index < 3 ? "eager" : "lazy"} draggable={false} className="h-full w-full object-cover" />
+        <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/90">{item.kind}</span>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 export default function HeroB() {
-  const ref = useGsap<HTMLDivElement>(({ root, full, fine, mobile, onCleanup }) => {
-    const q = gsap.utils.selector(root);
-    const cards = q<HTMLElement>(".hB__card");
-    gsap.from(q(".hl"), { yPercent: 110, rotate: 4, duration: 1.4, stagger: 0.1, ease: "expo.out", delay: 0.2 });
-    gsap.from(q(".hB__copy"), { autoAlpha: 0, y: 30, duration: 1.2, delay: 0.7, ease: "expo.out" });
-    gsap.from(q(".hB__card img"), { autoAlpha: 0, scale: 1.3, stagger: 0.05, duration: 1.2, ease: "expo.out", delay: 0.4 });
+  const full = useFull();
+  const ref = useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
+  const [spread, setSpread] = useState(false);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 25, restDelta: 0.001 });
+  const progress = useTransform(smooth, [0.05, 0.75], [0, 1]);
+  useMotionValueEvent(progress, "change", (p) => setSpread(p > 0.8));
 
-    let prog = 0, spin = 0, px = 0, py = 0;
-    const render = () => {
-      const p = ease(Math.min(1, prog));
-      cards.forEach((el, i) => {
-        const c = CARDS[i];
-        const o = orbitPos(c.a + spin, mobile);
-        const depthFactor = 0.2 + o.z / 200;
-        const x = c.stack.x + (o.x - c.stack.x) * p - px * 5 * depthFactor * p;
-        const y = c.stack.y + (o.y - c.stack.y) * p - py * 5 * depthFactor * p;
-        const s = 0.6 + (o.s - 0.6) * p;
-        const r = c.stack.r + (o.r - c.stack.r) * p;
-        el.style.transform = `translate(calc(-50% + ${x}vw), calc(-50% + ${y}vh)) rotate(${r}deg) scale(${s})`;
-        el.style.zIndex = String(p > 0.5 ? o.z : 10 + i);
-        el.style.filter = p > 0.5 ? `brightness(${(0.55 + (o.depth + 1) * 0.25).toFixed(2)})` : "";
-      });
-    };
-    if (!full) { prog = 1; render(); return; }
-    render();
+  const rawX = useMotionValue(0), rawY = useMotionValue(0);
+  const tiltX = useSpring(rawX, { stiffness: 40, damping: 30 }), tiltY = useSpring(rawY, { stiffness: 40, damping: 30 });
+  useEffect(() => {
+    if (!full || !finePointer()) return;
+    const on = (e: PointerEvent) => { rawX.set((e.clientY / innerHeight - 0.5) * -12); rawY.set((e.clientX / innerWidth - 0.5) * 12); };
+    addEventListener("pointermove", on, { passive: true });
+    return () => removeEventListener("pointermove", on);
+  }, [full, rawX, rawY]);
 
-    ScrollTrigger.create({
-      trigger: root, start: "top top", end: mobile ? "+=160%" : "+=230%", pin: true, scrub: 0.8,
-      onUpdate: (st) => {
-        // 0–0,6: la pila se abre en órbita · 0,6–1: la órbita gira un cuarto de vuelta
-        prog = Math.min(1, st.progress / 0.6);
-        spin = Math.max(0, (st.progress - 0.6) / 0.4) * (Math.PI / 2);
-        render();
-      },
-    });
+  const textOpacity = useTransform(progress, [0, 0.25, 1], [1, 1, 0.25]);
+  const textScale = useTransform(progress, [0, 1], [1, 0.85]);
+  const textBlur = useTransform(progress, [0, 0.25, 1], ["blur(0px)", "blur(0px)", "blur(8px)"]);
 
-    if (fine) {
-      const st = { x: 0, y: 0 };
-      const move = (e: PointerEvent) => {
-        gsap.to(st, {
-          x: (e.clientX / window.innerWidth - 0.5) * 2, y: (e.clientY / window.innerHeight - 0.5) * 2,
-          duration: 1.2, ease: "power3.out", overwrite: true, onUpdate: () => { px = st.x; py = st.y; render(); },
-        });
-      };
-      window.addEventListener("pointermove", move, { passive: true });
-      onCleanup(() => window.removeEventListener("pointermove", move));
-    }
-  });
+  const Copy = (
+    <>
+      <HeroEyebrow />
+      <h1 aria-label={H1_LABEL} className="mt-5 text-[clamp(2.8rem,7.5vw,7rem)] font-extrabold leading-[.92] tracking-[-0.05em] text-white">
+        <span aria-hidden>Producción visual<br /><span className="text-brand">B2B.</span></span>
+      </h1>
+      <HeroCopy className="mt-7" align="center" />
+    </>
+  );
+
+  if (!full) {
+    return (
+      <div className="relative overflow-hidden bg-night pb-20 pt-36 text-white">
+        <div className="u-wrap flex flex-col items-center text-center">{Copy}</div>
+        <div className="u-wrap mt-14 grid grid-cols-2 gap-3 md:grid-cols-4">
+          {PICK.slice(0, 8).map((p) => <img key={p.src} src={p.src} alt={p.title} loading="lazy" className="aspect-[4/5] w-full rounded-2xl object-cover" />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div ref={ref} className="hB is-dark">
-      <div className="hB__glow" aria-hidden="true" />
-      <div className="hB__center u-wrap">
-        <HeroEyebrow />
-        <HeroTitle className="hB__title" />
-        <HeroCopy className="hB__copy" />
+    <div ref={ref} className="relative h-[320vh] w-full bg-night text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(46,108,160,.22),transparent_60%)]" />
+      <div className="sticky top-0 flex h-[100svh] w-full items-center justify-center overflow-hidden" style={{ perspective: "1000px" }}>
+        <motion.div className="absolute inset-0 z-10" style={{ rotateX: tiltX, rotateY: tiltY, transformStyle: "preserve-3d" }}>
+          {CARDS.map((c, i) => <Card key={i} index={i} card={c} progress={progress} active={spread} hovered={hovered} setHovered={setHovered} />)}
+        </motion.div>
+        <motion.div className="relative z-[5] flex flex-col items-center px-6 text-center" style={{ opacity: textOpacity, scale: textScale, filter: textBlur }}>
+          {Copy}
+        </motion.div>
+        <p className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/50">Desliza para abrir el espacio</p>
       </div>
-      <div className="hB__orbit" aria-hidden="true">
-        {CARDS.map((c, i) => (
-          <figure key={i} className="hB__card"><img src={c.src} alt="" loading={i < 4 ? "eager" : "lazy"} decoding="async" draggable={false} /></figure>
-        ))}
-      </div>
-      <p className="hB__hint" aria-hidden="true">Haz scroll · mueve el cursor</p>
     </div>
   );
 }

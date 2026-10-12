@@ -11,7 +11,8 @@
 .dock__name, .dock__vname { color: #aab3c4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dock__vname i { color: #6f7a8f; font-style: normal; margin-left: 4px; }
 .dock__seg { display: inline-flex; background: rgba(255, 255, 255, .06); border-radius: 10px; padding: 3px; gap: 2px; }
-.dock__seg button { width: 32px; height: 30px; border-radius: 8px; font-weight: 700; color: #cbd3e1; transition: background .2s, color .2s; }
+.dock__seg button:disabled { opacity: .28; cursor: not-allowed; }
+.dock__seg button { width: 30px; height: 30px; border-radius: 8px; font-weight: 700; color: #cbd3e1; transition: background .2s, color .2s; }
 .dock__seg button:hover:not(:disabled) { background: rgba(255, 255, 255, .12); color: #fff; }
 .dock__seg button.is-on { background: var(--u-blue); color: var(--u-navy); }
 .dock__seg button:disabled { opacity: .35; cursor: not-allowed; }

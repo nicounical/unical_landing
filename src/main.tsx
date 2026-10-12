@@ -10,6 +10,7 @@ import "@fontsource/poppins/latin-700.css";
 import "@fontsource/poppins/latin-800.css";
 import "@fontsource/poppins/latin-900.css";
 import "@fontsource/poppins/latin-800-italic.css";
+import "./styles/tailwind.css";
 import "./styles/base.css";
 
 createRoot(document.getElementById("root")!).render(<StrictMode><App /></StrictMode>);

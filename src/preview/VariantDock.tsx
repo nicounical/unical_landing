@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { LETTERS, SECTIONS, type Letter, type SectionKey } from "@/config/sections";
+import { LETTERS, SECTIONS, variantOf, type Letter, type SectionKey } from "@/config/sections";
 import { scrollToTarget } from "@/core/scroll";
 import { selectionToCode, selectionToQuery, type Selection } from "./selection";
 import "./dock.css";
@@ -36,13 +36,13 @@ export default function VariantDock({ sel, set, setAll, reset, gallery }: Props)
     return () => io.disconnect();
   }, [sel, gallery]);
 
-  // Atajos: teclas 1–5 cambian la variante de la sección visible.
+  // Atajos: teclas 1–7 cambian la variante de la sección visible.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
       if (t.closest("input, textarea, select") || e.metaKey || e.ctrlKey || e.altKey) return;
-      const i = ["1", "2", "3", "4", "5"].indexOf(e.key);
-      if (i >= 0 && !gallery) set(current, LETTERS[i]);
+      const i = ["1", "2", "3", "4", "5", "6", "7"].indexOf(e.key);
+      if (i >= 0 && !gallery && SECTIONS.find((x) => x.key === current)?.variants[LETTERS[i]]) set(current, LETTERS[i]);
       if (e.key === "Escape") { setDevice(null); setOpen(false); }
     };
     window.addEventListener("keydown", onKey);
@@ -76,10 +76,10 @@ export default function VariantDock({ sel, set, setAll, reset, gallery }: Props)
               <div className="dock__seg" role="radiogroup" aria-label={cur.label}>
                 {LETTERS.map((l) => (
                   <button key={l} role="radio" aria-checked={sel[current] === l} className={sel[current] === l ? "is-on" : ""}
-                    title={`${l} · ${cur.variants[l].name} — ${cur.variants[l].direction}`} onClick={() => set(current, l)}>{l}</button>
+                    title={cur.variants[l] ? `${l} · ${cur.variants[l]!.name} — ${cur.variants[l]!.direction}` : `${l} · en construcción`} disabled={!cur.variants[l]} onClick={() => set(current, l)}>{l}</button>
                 ))}
               </div>
-              <span className="dock__name">{cur.variants[sel[current]].name}</span>
+              <span className="dock__name">{variantOf(cur, sel[current]).name}</span>
             </div>
           )}
           <div className="dock__dev" role="group" aria-label="Vista por dispositivo">
@@ -101,11 +101,11 @@ export default function VariantDock({ sel, set, setAll, reset, gallery }: Props)
                   <div className="dock__seg" role="radiogroup" aria-label={s.label}>
                     {LETTERS.map((l) => (
                       <button key={l} role="radio" aria-checked={sel[s.key] === l} className={sel[s.key] === l ? "is-on" : ""}
-                        title={`${s.variants[l].name} — ${s.variants[l].idea}`} onClick={() => set(s.key, l)} disabled={!!gallery}>{l}</button>
+                        title={s.variants[l] ? `${s.variants[l]!.name} — ${s.variants[l]!.idea}` : "En construcción"} onClick={() => set(s.key, l)} disabled={!!gallery || !s.variants[l]}>{l}</button>
                     ))}
                   </div>
-                  <span className="dock__vname">{s.variants[sel[s.key]].name} <i>{s.variants[sel[s.key]].direction}</i></span>
-                  <a className="dock__mini" href={`?${selectionToQuery(sel)}&gallery=${s.key}`} title="Ver las 5 variantes de esta sección una debajo de otra">Ver las 5</a>
+                  <span className="dock__vname">{variantOf(s, sel[s.key]).name} <i>{variantOf(s, sel[s.key]).direction}</i></span>
+                  <a className="dock__mini" href={`?${selectionToQuery(sel)}&gallery=${s.key}`} title="Ver las 7 variantes de esta sección una debajo de otra">Ver las 7</a>
                 </div>
               ))}
             </div>
@@ -116,7 +116,7 @@ export default function VariantDock({ sel, set, setAll, reset, gallery }: Props)
               <button className="dock__btn" onClick={() => copy(window.location.href, "Enlace copiado")}>Copiar enlace</button>
               <button className="dock__btn dock__btn--hi" onClick={() => copy(selectionToCode(sel), "Configuración copiada")}>Copiar configuración</button>
             </div>
-            <p className="dock__hint">Atajo: teclas <kbd>1</kbd>–<kbd>5</kbd> cambian la sección visible. La selección se guarda en este navegador y en la URL.</p>
+            <p className="dock__hint">Atajo: teclas <kbd>1</kbd>–<kbd>7</kbd> cambian la sección visible. La selección se guarda en este navegador y en la URL.</p>
           </div>
         )}
         {toast && <div className="dock__toast" role="status">{toast}</div>}

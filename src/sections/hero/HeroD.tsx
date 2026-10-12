@@ -1,60 +1,53 @@
+/**
+ * HERO D · Minimal Luxury — basado en 21st.dev «Editorial Hero» (Hero05, id 19075).
+ * Composición editorial en 12 columnas: tagline a la izquierda, titular y CTAs a la derecha y una banda
+ * panorámica con máscara degradada. Adaptación: Poppins/Inter de marca en lugar de serif, `text-wrap: balance`
+ * nativo en vez de react-wrap-balancer, vídeo real del Lexus Black Panther como panorámica, leve parallax.
+ */
+import { useRef } from "react";
+import { motion, useScroll, useTransform, type Variants } from "motion/react";
 import { hero, videos } from "@/content/site";
 import { SmartVideo } from "@/core/ui";
-import { useGsap } from "@/core/useGsap";
-import { gsap } from "@/core/scroll";
-import { HeroCopy } from "./shared";
-import "./hero.css";
+import { HeroCopy, H1_LABEL, useFull } from "./shared";
 
-/** D — EDITORIAL MOTION: el vídeo vive dentro de las letras gigantes; el scroll entra por el punto final hasta llenar la pantalla. */
+const container: Variants = { hidden: {}, visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } } };
+const item: Variants = { hidden: { opacity: 0, y: 14, filter: "blur(6px)" }, visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
+const media: Variants = { hidden: { opacity: 0, y: 30, filter: "blur(8px)" }, visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } } };
+
 export default function HeroD() {
-  const ref = useGsap<HTMLDivElement>(({ root, full, mobile }) => {
-    const q = gsap.utils.selector(root);
-    gsap.from(q(".hD__line"), { yPercent: 105, duration: 1.4, stagger: 0.1, ease: "expo.out", delay: 0.15 });
-    gsap.from(q(".hD__side > *"), { autoAlpha: 0, y: 20, stagger: 0.08, duration: 1, delay: 0.8, ease: "expo.out" });
-    if (!full) return;
-    const dot = q<HTMLElement>(".hD__dot")[0];
-    const paper = q<HTMLElement>(".hD__paper")[0];
-    const setOrigin = () => {
-      const r = dot.getBoundingClientRect();
-      const p = paper.getBoundingClientRect();
-      paper.style.transformOrigin = `${r.left - p.left + r.width / 2}px ${r.top - p.top + r.height * 0.72}px`;
-    };
-    setOrigin();
-    gsap.timeline({
-      scrollTrigger: { trigger: root, start: "top top", end: mobile ? "+=150%" : "+=200%", pin: true, scrub: 0.7, onRefresh: setOrigin },
-    })
-      .to(q(".hD__side"), { autoAlpha: 0, y: -30, duration: 0.25 }, 0)
-      .to(paper, { scale: mobile ? 90 : 140, ease: "power2.in", duration: 1 }, 0.05)
-      .to(paper, { autoAlpha: 0, duration: 0.15 }, 0.92)
-      .fromTo(q(".hD__caption"), { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.2 }, 0.95);
-  });
+  const full = useFull();
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "8%"]);
+  const anim = full ? { variants: container, initial: "hidden", animate: "visible" } : {};
 
   return (
-    <div ref={ref} className="hD">
-      <SmartVideo video={videos.heroPanther} className="hD__video" eager staticFallback />
-      <div className="hD__paper">
-        <h1 className="hD__title" aria-label="Producción visual B2B en Barcelona">
-          {hero.titleLines.map((l, i) => (
-            <span key={i} className="hD__mask" aria-hidden="true">
-              <span className={`hD__line hD__line--${i + 1}`}>
-                {i === 2 ? <>B2B<span className="hD__dot">.</span></> : l}
-              </span>
-            </span>
-          ))}
-        </h1>
-      </div>
-      <div className="hD__side">
-        <p className="hD__kicker"><span>{hero.eyebrow}</span><span>Est. +25 años</span></p>
-        <HeroCopy className="hD__copy" />
-        <ul className="hD__index">
-          {hero.ticker.slice(0, 6).map((t, i) => <li key={t}><i>{String(i + 1).padStart(2, "0")}</i>{t}</li>)}
-        </ul>
-      </div>
-      <div className="hD__caption u-wrap is-dark">
-        <p className="u-eyebrow u-eyebrow--light">En pantalla</p>
-        <p className="hD__captiont">{videos.heroPanther.label}</p>
-        <a className="hD__captionl" href={hero.ctaPrimary.href}>Ver más proyectos →</a>
-      </div>
+    <div ref={ref} className="relative isolate w-full overflow-hidden bg-navy text-white">
+      <motion.div {...anim} className="u-wrap relative z-10 grid grid-cols-1 gap-10 pb-10 pt-32 md:pt-36 lg:grid-cols-12">
+        <motion.div variants={item} className="flex flex-col justify-end gap-5 lg:col-span-4 lg:self-stretch">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">{hero.eyebrow}</p>
+          <p className="max-w-xs text-sm leading-relaxed text-white/60 [text-wrap:balance] md:text-base">
+            Impresión, rotulación, stands y eventos con producción propia en Cabrera de Mar.
+          </p>
+        </motion.div>
+        <motion.div variants={item} className="flex flex-col items-start gap-7 lg:col-span-7 lg:col-start-6">
+          <h1 aria-label={H1_LABEL} className="text-[clamp(2.6rem,6.2vw,6rem)] font-semibold leading-[.98] tracking-[-0.045em] text-white [text-wrap:balance]">
+            <span aria-hidden>Producción visual <span className="font-light italic text-brand">B2B</span>, del diseño al montaje.</span>
+          </h1>
+          <HeroCopy />
+        </motion.div>
+      </motion.div>
+
+      <motion.div variants={full ? media : undefined} initial={full ? "hidden" : false} animate="visible" className="relative w-full">
+        <div className="relative overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_100%)]">
+          <motion.div style={full ? { scale, y } : undefined} className="origin-center">
+            <SmartVideo video={videos.heroPanther} eager className="aspect-[4/3] w-full object-cover sm:aspect-[21/9]" ariaLabel={videos.heroPanther.label} />
+          </motion.div>
+          <div className="pointer-events-none absolute inset-0 bg-navy/10 mix-blend-overlay" />
+          <p className="absolute bottom-4 right-[var(--u-gutter)] text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">{videos.heroPanther.label}</p>
+        </div>
+      </motion.div>
     </div>
   );
 }

@@ -7,3 +7,4 @@ dist
 .vercel
 dist-preview
 .vite
+.cache21

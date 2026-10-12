@@ -1,3 +1,4 @@
+import "./mark.css";
 import type { CSSProperties } from "react";
 
 /**

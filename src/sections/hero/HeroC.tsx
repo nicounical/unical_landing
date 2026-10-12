@@ -1,129 +1,130 @@
-import { useGsap } from "@/core/useGsap";
-import { gsap } from "@/core/scroll";
-import { HeroCopy, HeroEyebrow, HeroTitle } from "./shared";
-import "./hero.css";
+/**
+ * HERO C · Experimental Creative — basado en 21st.dev «Scroll Morph Hero» (id 9583).
+ * 20 trabajos reales se dispersan, forman una línea y un círculo; con el scroll el círculo se abre en un arco
+ * que se desplaza mostrando más proyectos. Cada tarjeta gira al pasar el ratón y enseña el tipo de trabajo.
+ * Adaptación: el scroll virtual del original (que secuestraba la rueda) se sustituye por scroll real de página
+ * con una escena fijada; el H1 es visible desde el primer fotograma.
+ */
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, useScroll, useSpring, useTransform, useMotionValue } from "motion/react";
+import { finePointer } from "@/core/env";
+import { HeroCopy, HeroEyebrow, H1_LABEL, HERO_IMAGES, useFull } from "./shared";
 
-/** C — SCROLL-DRIVEN TRANSFORMATION: un espacio vacío se convierte en plano, se construye, se ilumina y aparece un stand real. */
-const S = 62; // escala del isométrico
-const iso = (x: number, y: number, z: number) => {
-  const px = 400 + (x - y) * Math.cos(Math.PI / 6) * S;
-  const py = 250 + (x + y) * Math.sin(Math.PI / 6) * S - z * S;
-  return `${px.toFixed(1)},${py.toFixed(1)}`;
-};
-const poly = (pts: [number, number, number][]) => pts.map((p) => iso(...p)).join(" ");
+type Phase = "scatter" | "line" | "circle";
+const N = 20;
+const ITEMS = HERO_IMAGES.slice(0, N);
+const lerp = (a: number, b: number, t: number) => a * (1 - t) + b * t;
 
-const FLOOR = poly([[0, 0, 0], [6, 0, 0], [6, 4, 0], [0, 4, 0]]);
-const BACK = poly([[0, 0, 0], [6, 0, 0], [6, 0, 3], [0, 0, 3]]);
-const SIDE = poly([[0, 0, 0], [0, 4, 0], [0, 4, 3], [0, 0, 3]]);
-const HEADER = poly([[1, 0, 3], [5, 0, 3], [5, 0, 3.7], [1, 0, 3.7]]);
-const C_TOP = poly([[3.4, 2.4, 1.1], [5.4, 2.4, 1.1], [5.4, 3.2, 1.1], [3.4, 3.2, 1.1]]);
-const C_FRONT = poly([[3.4, 3.2, 0], [5.4, 3.2, 0], [5.4, 3.2, 1.1], [3.4, 3.2, 1.1]]);
-const C_SIDE = poly([[5.4, 2.4, 0], [5.4, 3.2, 0], [5.4, 3.2, 1.1], [5.4, 2.4, 1.1]]);
-const SCREEN = poly([[3.6, 0, 1.2], [5.4, 0, 1.2], [5.4, 0, 2.4], [3.6, 0, 2.4]]);
-const GRAPHIC = poly([[0.4, 0, 0.4], [3.1, 0, 0.4], [3.1, 0, 2.7], [0.4, 0, 2.7]]);
-const gridLines: string[] = [];
-for (let i = 0; i <= 6; i++) gridLines.push(`M${iso(i, 0, 0)} L${iso(i, 4, 0)}`);
-for (let j = 0; j <= 4; j++) gridLines.push(`M${iso(0, j, 0)} L${iso(6, j, 0)}`);
-
-const STEPS = [
-  { k: "01", t: "Un espacio vacío", d: "6 × 4 m en Fira Barcelona. Medimos y escuchamos el briefing." },
-  { k: "02", t: "Diseño técnico", d: "Plano, cotas y originales gráficos adaptados a tu marca." },
-  { k: "03", t: "Producción y montaje", d: "Imprimimos, cortamos y montamos con equipo propio." },
-  { k: "04", t: "Luz y apertura", d: "Iluminación, últimos ajustes y listo para recibir visitas." },
-];
+function FlipCard({ item, i, target, w, h }: { item: (typeof ITEMS)[number]; i: number; target: { x: number; y: number; rotation: number; scale: number; opacity: number }; w: number; h: number }) {
+  return (
+    <motion.div animate={{ x: target.x, y: target.y, rotate: target.rotation, scale: target.scale, opacity: target.opacity }}
+      transition={{ type: "spring", stiffness: 40, damping: 15 }}
+      style={{ position: "absolute", width: w, height: h, transformStyle: "preserve-3d", perspective: 1000 }} className="group cursor-pointer">
+      <motion.div className="relative h-full w-full" style={{ transformStyle: "preserve-3d" }} whileHover={{ rotateY: 180 }} transition={{ type: "spring", stiffness: 260, damping: 20 }}>
+        <div className="absolute inset-0 overflow-hidden rounded-xl bg-charcoal shadow-lg" style={{ backfaceVisibility: "hidden" }}>
+          <img src={item.src} alt={item.title} loading={i < 8 ? "eager" : "lazy"} draggable={false} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-transparent" />
+        </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-xl border border-white/15 bg-navy p-2 text-center shadow-lg"
+          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+          <p className="mb-1 text-[7px] font-bold uppercase tracking-[0.18em] text-brand">{item.kind}</p>
+          <p className="text-[9px] font-semibold leading-tight text-white">{item.title}</p>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 export default function HeroC() {
-  const ref = useGsap<HTMLDivElement>(({ root, full, mobile }) => {
-    const q = gsap.utils.selector(root);
-    gsap.from(q(".hl"), { yPercent: 110, duration: 1.3, stagger: 0.08, ease: "expo.out", delay: 0.2 });
-    if (!full) { gsap.set(q(".hC__photo"), { clipPath: "inset(0% 0% 0% 0% round 0px)" }); return; }
+  const full = useFull();
+  const wrap = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const [phase, setPhase] = useState<Phase>(full ? "scatter" : "circle");
+  const [box, setBox] = useState({ width: 1200, height: 800 });
 
-    q<SVGGeometryElement>(".hC__draw").forEach((el) => {
-      const len = el.getTotalLength();
-      gsap.set(el, { strokeDasharray: len, strokeDashoffset: len });
-    });
-    const tl = gsap.timeline({
-      defaults: { ease: "none" },
-      scrollTrigger: { trigger: root, start: "top top", end: mobile ? "+=260%" : "+=340%", pin: true, scrub: 0.8 },
-    });
-    const step = (i: number) => tl.add(() => root.setAttribute("data-step", String(i)));
-    step(0);
-    tl.to(q(".hC__intro"), { autoAlpha: 0, y: -40, duration: 0.6 }, 0.4)
-      .from(q(".hC__grid path"), { autoAlpha: 0, stagger: 0.02, duration: 0.3 }, 0)
-      .to(q(".hC__scene"), { scale: 1, duration: 1 }, 0)
-      .addLabel("plan");
-    step(1);
-    tl.to(q(".hC__draw"), { strokeDashoffset: 0, stagger: 0.08, duration: 1 }, "plan")
-      .to(q(".hC__dim"), { autoAlpha: 1, stagger: 0.1, duration: 0.4 }, "plan+=0.6")
-      .addLabel("build");
-    tl.add(() => root.setAttribute("data-step", "2"), "build");
-    tl.to(q(".hC__fill"), { fillOpacity: 1, stagger: 0.1, duration: 0.8 }, "build")
-      .to(q(".hC__dim"), { autoAlpha: 0, duration: 0.3 }, "build+=0.4")
-      .to(q(".hC__brand"), { autoAlpha: 1, duration: 0.5 }, "build+=0.6")
-      .addLabel("light");
-    tl.add(() => root.setAttribute("data-step", "3"), "light");
-    tl.to(q(".hC__beam"), { autoAlpha: 1, stagger: 0.1, duration: 0.5 }, "light")
-      .to(q(".hC__scene"), { scale: 1.08, duration: 1 }, "light")
-      .to(q(".hC__photo"), { clipPath: "inset(0% 0% 0% 0% round 0px)", duration: 1.1 }, "light+=0.5")
-      .to(q(".hC__final"), { autoAlpha: 1, y: 0, duration: 0.6 }, "light+=1.2");
-  });
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const read = () => setBox({ width: el.offsetWidth, height: el.offsetHeight });
+    read();
+    const ro = new ResizeObserver(read);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!full) return;
+    const t1 = setTimeout(() => setPhase("line"), 400);
+    const t2 = setTimeout(() => setPhase("circle"), 2100);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [full]);
+
+  const { scrollYProgress } = useScroll({ target: wrap, offset: ["start start", "end end"] });
+  const morph = useSpring(useTransform(scrollYProgress, [0, 0.3], [0, 1]), { stiffness: 40, damping: 20 });
+  const rotate = useSpring(useTransform(scrollYProgress, [0.3, 1], [0, 1]), { stiffness: 40, damping: 20 });
+  const mouse = useMotionValue(0);
+  const smoothMouse = useSpring(mouse, { stiffness: 30, damping: 20 });
+  const [m, setM] = useState(0), [r, setR] = useState(0), [px, setPx] = useState(0);
+  useEffect(() => {
+    const a = morph.on("change", setM), b = rotate.on("change", setR), c = smoothMouse.on("change", setPx);
+    return () => { a(); b(); c(); };
+  }, [morph, rotate, smoothMouse]);
+  useEffect(() => {
+    const el = stage.current;
+    if (!el || !full || !finePointer()) return;
+    const on = (e: MouseEvent) => { const rc = el.getBoundingClientRect(); mouse.set(((e.clientX - rc.left) / rc.width * 2 - 1) * 100); };
+    el.addEventListener("mousemove", on);
+    return () => el.removeEventListener("mousemove", on);
+  }, [full, mouse]);
+
+  const scatter = useMemo(() => ITEMS.map(() => ({ x: (Math.random() - 0.5) * 1500, y: (Math.random() - 0.5) * 1000, rotation: (Math.random() - 0.5) * 180, scale: 0.6, opacity: 0 })), []);
+  const contentOpacity = useTransform(morph, [0.75, 1], [0, 1]);
+  const contentY = useTransform(morph, [0.75, 1], [24, 0]);
+  const introOpacity = useTransform(morph, [0, 0.45], [1, 0]);
+
+    const mobile = box.width < 768;
+  const W = mobile ? 52 : 70, H = mobile ? 74 : 100;
+
+  const targetFor = (i: number) => {
+    if (phase === "scatter") return scatter[i];
+    if (phase === "line") { const sp = W + 12; return { x: i * sp - (N * sp) / 2, y: 0, rotation: 0, scale: 1, opacity: 1 }; }
+    const minD = Math.min(box.width, box.height);
+    const cr = mobile ? box.width * 0.44 : Math.min(minD * 0.36, 360);
+    const ca = (i / N) * 360, crad = (ca * Math.PI) / 180;
+    const circle = { x: Math.cos(crad) * cr, y: Math.sin(crad) * cr, rotation: ca + 90 };
+    const arcR = Math.min(box.width, box.height * 1.5) * (mobile ? 1.4 : 1.1);
+    const apex = box.height * (mobile ? 0.38 : 0.3);
+    const spread = mobile ? 100 : 130, start = -90 - spread / 2, step = spread / (N - 1);
+    const ang = start + i * step - r * spread * 0.8, rad = (ang * Math.PI) / 180;
+    const arc = { x: Math.cos(rad) * arcR + px, y: Math.sin(rad) * arcR + apex + arcR, rotation: ang + 90, scale: mobile ? 1.4 : 1.8 };
+    return { x: lerp(circle.x, arc.x, m), y: lerp(circle.y, arc.y, m), rotation: lerp(circle.rotation, arc.rotation, m), scale: lerp(1, arc.scale, m), opacity: 1 };
+  };
 
   return (
-    <div ref={ref} className="hC is-dark" data-step="0">
-      <div className="hC__stage">
-        <svg className="hC__scene" viewBox="0 0 800 560" role="img" aria-label="Animación: un espacio vacío se convierte en un stand montado e iluminado">
-          <defs>
-            <linearGradient id="hcBack" x1="0" x2="1"><stop offset="0" stopColor="#1E5076" /><stop offset="1" stopColor="#2E6CA0" /></linearGradient>
-            <linearGradient id="hcGfx" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#99C4E4" /><stop offset="1" stopColor="#2E6CA0" /></linearGradient>
-            <radialGradient id="hcBeam"><stop offset="0" stopColor="#fff" stopOpacity=".55" /><stop offset="1" stopColor="#99C4E4" stopOpacity="0" /></radialGradient>
-          </defs>
-          <g className="hC__grid">{gridLines.map((d, i) => <path key={i} d={d} />)}</g>
-          <polygon className="hC__fill" points={FLOOR} fill="#2a2a44" fillOpacity="0" />
-          <polygon className="hC__fill" points={SIDE} fill="#1A1A2E" fillOpacity="0" />
-          <polygon className="hC__fill" points={BACK} fill="url(#hcBack)" fillOpacity="0" />
-          <polygon className="hC__fill" points={GRAPHIC} fill="url(#hcGfx)" fillOpacity="0" />
-          <polygon className="hC__fill" points={SCREEN} fill="#0b0b16" fillOpacity="0" />
-          <polygon className="hC__fill" points={HEADER} fill="#fff" fillOpacity="0" />
-          <polygon className="hC__fill" points={C_SIDE} fill="#cfd8e6" fillOpacity="0" />
-          <polygon className="hC__fill" points={C_FRONT} fill="#fff" fillOpacity="0" />
-          <polygon className="hC__fill" points={C_TOP} fill="#E4E9F0" fillOpacity="0" />
-          {[BACK, SIDE, HEADER, GRAPHIC, SCREEN, C_TOP, C_FRONT, C_SIDE].map((p, i) => (
-            <polygon key={i} className="hC__draw" points={p} />
-          ))}
-          <g className="hC__dims">
-            <text className="hC__dim" x={iso(3, 4.6, 0).split(",")[0]} y={iso(3, 4.6, 0).split(",")[1]}>6,00 m</text>
-            <text className="hC__dim" x={iso(-0.7, 2, 0).split(",")[0]} y={iso(-0.7, 2, 0).split(",")[1]}>4,00 m</text>
-            <text className="hC__dim" x={iso(6.4, 0, 1.6).split(",")[0]} y={iso(6.4, 0, 1.6).split(",")[1]}>3,00 m</text>
-          </g>
-          <text className="hC__brand" x={iso(3, 0, 3.25).split(",")[0]} y={iso(3, 0, 3.25).split(",")[1]} transform={`skewY(30)`} style={{ transformBox: "fill-box", transformOrigin: "center" }}>TU MARCA</text>
-          {[1.5, 3, 4.5].map((x) => {
-            const [cx, cy] = iso(x, 1.2, 2.2).split(",");
-            return <ellipse key={x} className="hC__beam" cx={cx} cy={cy} rx="90" ry="120" fill="url(#hcBeam)" />;
-          })}
-        </svg>
-        <div className="hC__photo" aria-hidden="true">
-          <img src={`${import.meta.env.BASE_URL}media/img/hubs/eventos/stand-feria.webp`} alt="" loading="lazy" decoding="async" />
+    <div ref={wrap} className={full ? "relative h-[300vh] bg-night" : "relative bg-night"}>
+      <div ref={stage} className={full ? "sticky top-0 h-[100svh] overflow-hidden" : "relative h-[100svh] min-h-[640px] overflow-hidden"}>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(46,108,160,.25),transparent_55%)]" />
+        <div className="relative flex h-full w-full items-center justify-center">
+          {ITEMS.map((it, i) => <FlipCard key={it.src} item={it} i={i} w={W} h={H} target={targetFor(i)} />)}
         </div>
-      </div>
 
-      <div className="hC__intro u-wrap">
-        <HeroEyebrow />
-        <HeroTitle className="hC__title" />
-        <HeroCopy className="hC__copy" />
-      </div>
+        <motion.div style={{ opacity: full ? introOpacity : 1 }} className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
+          <motion.div initial={full ? { opacity: 0, y: 20, filter: "blur(10px)" } : false} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 1, delay: 0.3 }}>
+            <HeroEyebrow className="justify-center" />
+            <h1 aria-label={H1_LABEL} className="mt-4 text-[1.7rem] md:text-[clamp(2.2rem,5.5vw,4.6rem)] font-extrabold leading-[.95] tracking-[-0.045em] text-white">
+              <span aria-hidden>Producción visual <span className="text-brand">B2B.</span></span>
+            </h1>
+            {full && <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.3em] text-white/50">Desliza para explorar</p>}
+          </motion.div>
+          {!full && <HeroCopy className="pointer-events-auto mt-6" align="center" magnetic={false} />}
+        </motion.div>
 
-      <ol className="hC__steps u-wrap" aria-label="Del concepto al montaje">
-        {STEPS.map((s, i) => (
-          <li key={s.k} className="hC__step" data-i={i}>
-            <span>{s.k}</span><b>{s.t}</b><em>{s.d}</em>
-          </li>
-        ))}
-      </ol>
-
-      <div className="hC__final u-wrap">
-        <p className="hC__finalk">Stand real producido por Unical</p>
-        <p className="hC__finalt">Así lo hacemos realidad.</p>
-        <HeroCopy className="hC__copy2" />
+        {full && (
+          <motion.div style={{ opacity: contentOpacity, y: contentY }} className="absolute inset-x-0 top-[13%] z-20 flex flex-col items-center px-6 text-center">
+            <p className="text-[clamp(1.6rem,3.6vw,3rem)] font-head font-bold leading-tight tracking-[-0.03em] text-white">Más de 25 años produciendo<br className="hidden md:block" /> para marcas en toda España.</p>
+            <HeroCopy className="mt-5" align="center" />
+          </motion.div>
+        )}
       </div>
     </div>
   );

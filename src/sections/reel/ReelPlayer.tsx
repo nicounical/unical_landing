@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { Video } from "@/content/site";
 import { Icon } from "@/core/ui";
-import "./reel.css";
+import "./player.css";
 
 /**
  * Reproductor del reel con controles discretos: play/pausa, sonido (solo si el usuario lo activa),
