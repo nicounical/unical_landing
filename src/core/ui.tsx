@@ -196,3 +196,17 @@ export function Icon({ name, size = 28 }: { name: string; size?: number }) {
     default: return null;
   }
 }
+
+/* ---------- Montaje diferido: true cuando el elemento se acerca al viewport ---------- */
+export function useNear<T extends HTMLElement>(margin = "600px") {
+  const ref = useRef<T>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || near) return;
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setNear(true); io.disconnect(); } }, { rootMargin: margin });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [margin, near]);
+  return [ref, near] as const;
+}

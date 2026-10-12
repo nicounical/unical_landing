@@ -30,7 +30,7 @@ export const SECTIONS: SectionDef[] = [
     key: "hero", id: "inicio", label: "Portada",
     variants: {
       A: { name: "Cinematic Showreel", direction: D.A, idea: "Vídeo a pantalla completa con cortes entre proyectos reales, bandas de cine y dolly-in al hacer scroll.", Component: lazy(() => import("@/sections/hero/HeroA")) },
-      B: { name: "Espacio 3D", direction: D.B, idea: "Los proyectos flotan en un espacio con profundidad; el cursor orienta la cámara y el scroll avanza a través de ellos.", Component: lazy(() => import("@/sections/hero/HeroB")) },
+      B: { name: "Órbita de proyectos", direction: D.B, idea: "Los trabajos salen de una pila y se abren en una órbita 3D con escala por profundidad y parallax de cursor (21st.dev Cinematic Orbit Hero).", Component: lazy(() => import("@/sections/hero/HeroB")) },
       C: { name: "Del vacío al stand", direction: D.C, idea: "Escena fijada: un plano vacío se convierte en plano técnico, se construye, se ilumina y aparece el stand real.", Component: lazy(() => import("@/sections/hero/HeroC")) },
       D: { name: "Editorial Motion", direction: D.D, idea: "Tipografía gigante con el vídeo dentro de las letras; al hacer scroll la máscara se abre a pantalla completa.", Component: lazy(() => import("@/sections/hero/HeroD")) },
       E: { name: "Mosaico dinámico", direction: D.E, idea: "Columnas de proyectos a distintas velocidades; una pieza central crece hasta llenar la pantalla.", Component: lazy(() => import("@/sections/hero/HeroE")) },
@@ -49,7 +49,7 @@ export const SECTIONS: SectionDef[] = [
   {
     key: "reel", id: "reel", label: "Unical in Motion",
     variants: {
-      A: { name: "Fullscreen Film", direction: D.A, idea: "La tarjeta del showreel se expande a pantalla completa con el scroll; controles discretos y sonido opcional.", Component: lazy(() => import("@/sections/reel/ReelA")) },
+      A: { name: "Fullscreen Film", direction: D.A, idea: "Titular cinético, badges con barrido y el showreel que se abre en círculo hasta llenar la pantalla (21st.dev Hero Scroll Video Pin Reveal).", Component: lazy(() => import("@/sections/reel/ReelA")) },
       B: { name: "Reel por scroll", direction: D.B, idea: "La sección se fija y el scroll controla el avance del vídeo fotograma a fotograma, con capítulos.", Component: lazy(() => import("@/sections/reel/ReelB")) },
       C: { name: "Galería interactiva", direction: D.C, idea: "Mosaico de piezas que se reproducen al pasar el ratón; al elegir una se abre en un reproductor con transición.", Component: lazy(() => import("@/sections/reel/ReelC")) },
       D: { name: "Viaje horizontal", direction: D.D, idea: "Travelling horizontal por proyectos y clips de distintos tamaños con parallax interno.", Component: lazy(() => import("@/sections/reel/ReelD")) },
@@ -59,11 +59,11 @@ export const SECTIONS: SectionDef[] = [
   {
     key: "projects", id: "proyectos", label: "Proyectos",
     variants: {
-      A: { name: "Pila cinematográfica", direction: D.A, idea: "Proyectos a pantalla completa que se apilan: el anterior retrocede y se oscurece mientras entra el siguiente.", Component: lazy(() => import("@/sections/projects/ProjectsA")) },
-      B: { name: "Muro inclinado", direction: D.B, idea: "Un muro de proyectos en perspectiva que se endereza al hacer scroll; cada pieza se inclina con el cursor.", Component: lazy(() => import("@/sections/projects/ProjectsB")) },
+      A: { name: "Pila cinematográfica", direction: D.A, idea: "Proyectos a pantalla casi completa que se apilan (sticky): el anterior retrocede y se oscurece (21st.dev Stacking Cards).", Component: lazy(() => import("@/sections/projects/ProjectsA")) },
+      B: { name: "Muro que se despliega", direction: D.B, idea: "Rejilla en perspectiva 3D que se endereza con el scroll, columnas a distinta velocidad y tilt con el cursor (21st.dev Unfurling Gallery).", Component: lazy(() => import("@/sections/projects/ProjectsB")) },
       C: { name: "Lienzo arrastrable", direction: D.C, idea: "Lienzo libre que se arrastra con inercia en todas direcciones para explorar los trabajos.", Component: lazy(() => import("@/sections/projects/ProjectsC")) },
       D: { name: "Índice con vista previa", direction: D.D, idea: "Lista numerada sobria; la imagen aparece y sigue al cursor, con un proyecto destacado.", Component: lazy(() => import("@/sections/projects/ProjectsD")) },
-      E: { name: "Bandas en movimiento", direction: D.E, idea: "Filas de proyectos en direcciones opuestas que aceleran y se inclinan con la velocidad del scroll.", Component: lazy(() => import("@/sections/projects/ProjectsE")) },
+      E: { name: "Zoom parallax", direction: D.E, idea: "Siete trabajos crecen a velocidades distintas con el scroll hasta que uno llena la pantalla (21st.dev Zoom Parallax).", Component: lazy(() => import("@/sections/projects/ProjectsE")) },
     },
   },
   {
