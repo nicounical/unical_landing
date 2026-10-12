@@ -1,3 +1,7 @@
+> **Nota de marca (prevalece sobre este archivo):** generado con ui-ux-pro-max (`--design-system --variance 8 --motion 10 --density 3`).
+> Se adoptan el patrón (Scroll-Triggered Storytelling + Trust & Authority), las reglas de motion, accesibilidad y rendimiento.
+> **No** se adoptan su paleta ni sus tipografías: se mantienen los tokens de la skill unical-ui (navy #1A1A2E, azul #99C4E4, CTA #2E6CA0, Poppins + Inter).
+
 # Design System Master File
 
 > **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.

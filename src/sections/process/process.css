@@ -109,3 +109,4 @@
 .prE__n { font-family: ui-monospace, monospace; color: var(--u-blue); font-size: .8rem; }
 .prE__info h3 { font-size: 1.6rem; }
 .prE__info p { color: #aab3c4; }
+@media (max-width: 860px) { .prB.is-live .sh__lead { display: none; } }
