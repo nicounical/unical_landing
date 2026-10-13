@@ -60,7 +60,7 @@ export default function HeroB() {
   const [spread, setSpread] = useState(false);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 25, restDelta: 0.001 });
-  const progress = useTransform(smooth, [0.05, 0.75], [0, 1]);
+  const progress = useTransform(smooth, [0.08, 0.75], [0, 1]);
   useMotionValueEvent(progress, "change", (p) => setSpread(p > 0.8));
 
   const rawX = useMotionValue(0), rawY = useMotionValue(0);
@@ -72,9 +72,10 @@ export default function HeroB() {
     return () => removeEventListener("pointermove", on);
   }, [full, rawX, rawY]);
 
-  const textOpacity = useTransform(progress, [0, 0.25, 1], [1, 1, 0.25]);
+  const textOpacity = useTransform(progress, [0, 0.12, 0.4], [1, 1, 0]);
+  const endOpacity = useTransform(progress, [0.75, 0.95], [0, 1]);
   const textScale = useTransform(progress, [0, 1], [1, 0.85]);
-  const textBlur = useTransform(progress, [0, 0.25, 1], ["blur(0px)", "blur(0px)", "blur(8px)"]);
+  const textBlur = useTransform(progress, [0, 0.12, 0.4], ["blur(0px)", "blur(0px)", "blur(10px)"]);
 
   const Copy = (
     <>
@@ -101,13 +102,17 @@ export default function HeroB() {
     <div ref={ref} className="relative h-[320vh] w-full bg-night text-white">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(46,108,160,.22),transparent_60%)]" />
       <div className="sticky top-0 flex h-[100svh] w-full items-center justify-center overflow-hidden" style={{ perspective: "1000px" }}>
-        <motion.div className="absolute inset-0 z-10" style={{ rotateX: tiltX, rotateY: tiltY, transformStyle: "preserve-3d" }}>
+        <motion.div className="absolute inset-0 z-[5]" style={{ rotateX: tiltX, rotateY: tiltY, transformStyle: "preserve-3d" }}>
           {CARDS.map((c, i) => <Card key={i} index={i} card={c} progress={progress} active={spread} hovered={hovered} setHovered={setHovered} />)}
         </motion.div>
-        <motion.div className="relative z-[5] flex flex-col items-center px-6 text-center" style={{ opacity: textOpacity, scale: textScale, filter: textBlur }}>
+        <motion.div className="pointer-events-none relative z-10 flex flex-col items-center px-6 text-center [&_a]:pointer-events-auto" style={{ opacity: textOpacity, scale: textScale, filter: textBlur }}>
           {Copy}
         </motion.div>
-        <p className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/50">Desliza para abrir el espacio</p>
+        <motion.p style={{ opacity: useTransform(progress, [0, 0.1], [1, 0]) }} className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 text-[10px] font-semibold uppercase tracking-[0.3em] text-white/50">Desliza para abrir el espacio</motion.p>
+        <motion.div style={{ opacity: endOpacity }} className="pointer-events-none absolute inset-x-0 bottom-24 z-20 hidden flex-col md:flex items-center gap-4 px-6 text-center [&_a]:pointer-events-auto">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">Trabajos reales · Producción propia</p>
+          <HeroCopy lead={false} align="center" />
+        </motion.div>
       </div>
     </div>
   );

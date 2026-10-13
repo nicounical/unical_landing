@@ -23,8 +23,8 @@ export default function HeroD() {
   const anim = full ? { variants: container, initial: "hidden", animate: "visible" } : {};
 
   return (
-    <div ref={ref} className="relative isolate w-full overflow-hidden bg-navy text-white">
-      <motion.div {...anim} className="u-wrap relative z-10 grid grid-cols-1 gap-10 pb-10 pt-32 md:pt-36 lg:grid-cols-12">
+    <div ref={ref} className="relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-navy text-white">
+      <motion.div {...anim} className="u-wrap relative z-10 grid grid-cols-1 gap-10 pb-8 pt-28 md:pt-32 lg:grid-cols-12">
         <motion.div variants={item} className="flex flex-col justify-end gap-5 lg:col-span-4 lg:self-stretch">
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand">{hero.eyebrow}</p>
           <p className="max-w-xs text-sm leading-relaxed text-white/60 [text-wrap:balance] md:text-base">
@@ -32,17 +32,17 @@ export default function HeroD() {
           </p>
         </motion.div>
         <motion.div variants={item} className="flex flex-col items-start gap-7 lg:col-span-7 lg:col-start-6">
-          <h1 aria-label={H1_LABEL} className="text-[clamp(2.6rem,6.2vw,6rem)] font-semibold leading-[.98] tracking-[-0.045em] text-white [text-wrap:balance]">
+          <h1 aria-label={H1_LABEL} className="text-[clamp(2.4rem,5.2vw,5.2rem)] font-semibold leading-[.98] tracking-[-0.045em] text-white [text-wrap:balance]">
             <span aria-hidden>Producción visual <span className="font-light italic text-brand">B2B</span>, del diseño al montaje.</span>
           </h1>
           <HeroCopy />
         </motion.div>
       </motion.div>
 
-      <motion.div variants={full ? media : undefined} initial={full ? "hidden" : false} animate="visible" className="relative w-full">
-        <div className="relative overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_18%,black_100%)]">
-          <motion.div style={full ? { scale, y } : undefined} className="origin-center">
-            <SmartVideo video={videos.heroPanther} eager className="aspect-[4/3] w-full object-cover sm:aspect-[21/9]" ariaLabel={videos.heroPanther.label} />
+      <motion.div variants={full ? media : undefined} initial={full ? "hidden" : false} animate="visible" className="relative flex w-full flex-1 flex-col">
+        <div className="relative min-h-[42svh] flex-1 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_14%,black_100%)]">
+          <motion.div style={full ? { scale, y } : undefined} className="absolute inset-0 origin-center">
+            <SmartVideo video={videos.heroPanther} eager className="h-full w-full object-cover" ariaLabel={videos.heroPanther.label} />
           </motion.div>
           <div className="pointer-events-none absolute inset-0 bg-navy/10 mix-blend-overlay" />
           <p className="absolute bottom-4 right-[var(--u-gutter)] text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">{videos.heroPanther.label}</p>

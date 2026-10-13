@@ -32,7 +32,7 @@ function Card({ p, translate }: { p: P; translate: MotionValue<number> }) {
 
 function Header() {
   return (
-    <div className="u-wrap relative z-20 w-full pb-16 pt-36 md:pb-32 md:pt-44">
+    <div className="u-wrap relative z-20 w-full pb-12 pt-32 md:pb-16 md:pt-36">
       <HeroEyebrow />
       <h1 aria-label={H1_LABEL} className="mt-5 text-[clamp(3rem,9vw,8.5rem)] font-extrabold leading-[.9] tracking-[-0.05em] text-white">
         <span aria-hidden>PRODUCCIÓN<br />VISUAL <span className="text-brand">B2B.</span></span>
@@ -52,7 +52,7 @@ export default function HeroE() {
   const rotateX = useSpring(useTransform(scrollYProgress, [0, 0.2], [15, 0]), cfg);
   const opacity = useSpring(useTransform(scrollYProgress, [0, 0.2], [0.2, 1]), cfg);
   const rotateZ = useSpring(useTransform(scrollYProgress, [0, 0.2], [20, 0]), cfg);
-  const translateY = useSpring(useTransform(scrollYProgress, [0, 0.2], [-700, 500]), cfg);
+  const translateY = useSpring(useTransform(scrollYProgress, [0, 0.2], [-560, 40]), cfg);
 
   if (!full) {
     return (
