@@ -1,0 +1,33 @@
+/* ===== WhyB · «3D parallax effect on hover» (21st.dev 2195) ===== */
+.wyb-card {
+  --_f: calc(100% * var(--f) / (1 + var(--f)));
+  --_a: calc(90deg * var(--f));
+  position: relative; display: block; width: 100%; aspect-ratio: 7 / 10;
+  outline: none;
+}
+.wyb-card__img,
+.wyb-card__layer {
+  transition: clip-path .6s var(--u-ease), transform .6s var(--u-ease);
+  transform: perspective(var(--p, 700px)) var(--_t, rotateY(var(--_a)));
+}
+.wyb-card__img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  clip-path: inset(0 var(--_f) 0 0 round var(--r));
+}
+/* Capa frontal: viaja en Z con el mismo giro (parallax entre capas) */
+.wyb-card__layer {
+  position: absolute; inset: 0; pointer-events: none;
+  clip-path: inset(0 var(--_f) 0 0 round var(--r));
+  --_z: translateZ(36px);
+  transform: perspective(var(--p, 700px)) var(--_t, rotateY(var(--_a))) var(--_z);
+}
+.wyb-card:hover .wyb-card__img, .wyb-card:hover .wyb-card__layer,
+.wyb-card:focus-visible .wyb-card__img, .wyb-card:focus-visible .wyb-card__layer,
+.wyb-card.is-on .wyb-card__img, .wyb-card.is-on .wyb-card__layer {
+  clip-path: inset(0 0 0 var(--_f) round var(--r));
+  --_t: translateX(calc(-1 * var(--_f))) rotateY(calc(-1 * var(--_a)));
+}
+.wyb-card:focus-visible { outline: 2px solid var(--u-blue-strong); outline-offset: 8px; border-radius: 6px; }
+.wyb-card__shade { transition: opacity .6s var(--u-ease); }
+.wyb-card:hover .wyb-card__shade, .wyb-card:focus-visible .wyb-card__shade, .wyb-card.is-on .wyb-card__shade { opacity: .35; }
+.wyb-static .wyb-card__img, .wyb-static .wyb-card__layer { transform: none; clip-path: inset(0 round var(--r)); transition: none; }
